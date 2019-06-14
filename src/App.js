@@ -5,6 +5,7 @@ import NavBar from './components/layout/NavBar';
 import Alert from './components/layout/Alert';
 import Search from './components/users/Search';
 import Users from './components/users/Users';
+import UserPage from './pages/User';
 import AboutPage from './pages/About'
 import './App.css';
 
@@ -13,10 +14,12 @@ class App extends Component {
     super();
     this.state = {
       users: [],
+      user: {},
       isLoading: false,
       alert: null,
     };
     this.searchUsers = this.searchUsers.bind(this);
+    this.getUser = this.getUser.bind(this);
     this.clearUsers = this.clearUsers.bind(this);
     this.setAlert = this.setAlert.bind(this);
   }
@@ -29,6 +32,14 @@ class App extends Component {
     this.setState({ users: res.data.items, isLoading: false });
   }
 
+  async getUser(username) {
+    this.setState({ isLoading: true });
+
+    const res = await axios.get(`https://api.github.com/users/${username}?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`);
+
+    this.setState({ user: res.data, isLoading: false });
+  }
+
   clearUsers() {
     this.setState({ users: [], isLoading: false });
   }
@@ -39,7 +50,12 @@ class App extends Component {
   }
 
   render() {
-    const { alert, users, isLoading } = this.state;
+    const {
+      alert,
+      users,
+      user,
+      isLoading,
+    } = this.state;
 
     return (
       <Router>
@@ -63,7 +79,23 @@ class App extends Component {
                   </Fragment>
                 )}
               />
-              <Route exact path="/about" component={AboutPage} />
+              <Route
+                exact
+                path="/about"
+                component={AboutPage}
+              />
+              <Route
+                exact
+                path="/user/:login"
+                render={props => (
+                  <UserPage
+                    user={user}
+                    getUser={this.getUser}
+                    isLoading={isLoading}
+                    {...props}
+                  />
+                )}
+              />
             </Switch>
           </div>
         </div>
