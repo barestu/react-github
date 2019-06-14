@@ -15,11 +15,13 @@ class App extends Component {
     this.state = {
       users: [],
       user: {},
-      isLoading: false,
+      repos: [],
       alert: null,
+      isLoading: false,
     };
     this.searchUsers = this.searchUsers.bind(this);
     this.getUser = this.getUser.bind(this);
+    this.getUserRepos = this.getUserRepos.bind(this);
     this.clearUsers = this.clearUsers.bind(this);
     this.setAlert = this.setAlert.bind(this);
   }
@@ -40,6 +42,14 @@ class App extends Component {
     this.setState({ user: res.data, isLoading: false });
   }
 
+  async getUserRepos(username) {
+    this.setState({ isLoading: true });
+
+    const res = await axios.get(`https://api.github.com/users/${username}/repos?per_page=5&sort=created:asc&client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`);
+
+    this.setState({ repos: res.data, isLoading: false });
+  }
+
   clearUsers() {
     this.setState({ users: [], isLoading: false });
   }
@@ -51,9 +61,10 @@ class App extends Component {
 
   render() {
     const {
-      alert,
       users,
       user,
+      repos,
+      alert,
       isLoading,
     } = this.state;
 
@@ -89,8 +100,10 @@ class App extends Component {
                 path="/user/:login"
                 render={props => (
                   <UserPage
-                    user={user}
                     getUser={this.getUser}
+                    getUserRepos={this.getUserRepos}
+                    user={user}
+                    repos={repos}
                     isLoading={isLoading}
                     {...props}
                   />

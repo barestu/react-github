@@ -2,16 +2,20 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Spinner from '../components/layout/Spinner';
+import Repos from '../components/repos/Repos';
 
 export class UserPage extends Component {
   static propTypes = {
     getUser: PropTypes.func.isRequired,
+    getUserRepos: PropTypes.func.isRequired,
     user: PropTypes.object.isRequired,
-    isLoading: PropTypes.bool.isRequired,
+    repos: PropTypes.array.isRequired,
+    isLoading: PropTypes.bool,
   }
 
   componentDidMount() {
     this.props.getUser(this.props.match.params.login);
+    this.props.getUserRepos(this.props.match.params.login);
   }
 
   render() {
@@ -30,12 +34,12 @@ export class UserPage extends Component {
       public_repos,
       public_gists,
     } = this.props.user;
-    const { isLoading } = this.props.isLoading;
+    const { repos, isLoading } = this.props;
 
     if (isLoading) return <Spinner />;
     return (
       <Fragment>
-        <Link to="/" className="btn btn-light">Back To</Link>
+        <Link to="/" className="btn btn-light">Back To Search</Link>
         Hireable: {' '}
         {hireable ? (
           <i className="fas fa-check text-success" />
@@ -96,6 +100,8 @@ export class UserPage extends Component {
           <div className="badge badge-light">Public Repos: {public_repos}</div>
           <div className="badge badge-dark">Public Gists: {public_gists}</div>
         </div>
+
+        <Repos repos={repos} />
       </Fragment>
     );
   }
